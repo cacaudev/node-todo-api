@@ -1,9 +1,5 @@
 const {MongoClient, ObjectID} = require('mongodb');
 
-// let user = {name: 'Cacau', age:25}; // Object destructuring
-// let {name} = user;
-// console.log(name);
-
 MongoClient.connect('mongodb://localhost:27017/TodoApp', (err, client) => {
   if (err) 
     console.log('Unable to connect to database');
