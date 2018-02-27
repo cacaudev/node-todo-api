@@ -4,9 +4,18 @@ const request = require('supertest');
 const {app}  = require('../server');
 const {Todo} = require('../models/todo');
 
-// Before the test remove all documents from the collection todo
+// Array of todos for testing
+const todos = [
+  { text: "First something to do"},
+  { text: "Second something to do"}
+];
+
+// Before every single test remove all documents from the collection todo
+// then add only the array of todos above
 beforeEach((done) => {
-  Todo.remove({}).then(() => done());
+  Todo.remove({}).then(() => {
+    return Todo.insertMany(todos);
+  }).then(() => done());
 });
 
 describe('POST /todos', () => {
@@ -23,8 +32,8 @@ describe('POST /todos', () => {
       .end((err, res) => {
         if (err) return done(err);
 
-        // Expect the collection to have only 1 document
-        Todo.find().then((todos) => {   
+        // Expect to find the document with the exact text above
+        Todo.find({text}).then((todos) => {   
           expect(todos.length).toBe(1);
           expect(todos[0].text).toBe(text);
           done();
@@ -32,8 +41,7 @@ describe('POST /todos', () => {
       });
   });
 
-  it('Should not create todo with invalid body data', (done) => {
-    
+  it('Should not create todo with invalid body data', (done) => {    
     request(app)
       .post('/todos')
       .send({})
@@ -41,12 +49,23 @@ describe('POST /todos', () => {
       .end((err, res) => {
         if (err) return done(err);
 
-        // Fetch all documents in the todo collection
+        // Fetch all documents in the todo collection - only 2 - array above
         Todo.find().then((todos) => {
-          expect(todos.length).toBe(0);
+          expect(todos.length).toBe(2);
           done();
         }).catch((err) => done(err));
       });
   });
+});
 
+describe('GET /todos', () => {
+  it('Should fetch all todos', (done) => {
+    request(app)
+      .get('/todos')
+      .expect(200)
+      .expect((res) => {
+        expect(res.body.todos.length).toBe(2);
+      })
+      .end(done);
+  });
 });
