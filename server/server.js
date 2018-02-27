@@ -1,6 +1,6 @@
 const express    = require('express');
 const bodyParser = require('body-parser');
-const app = express();
+const app        = express();
 
 const {mongoose} = require('./db/mongoose');
 const {Todo}     = require('./models/todo');
@@ -10,7 +10,7 @@ const {User}     = require('./models/user');
 app.use(bodyParser.json());
 
 // Routes
-app.post('/todos', (req, res) =>{
+app.post('/todos', (req, res) => {
   let todo = new Todo({
     text: req.body.text
   });
@@ -25,3 +25,6 @@ app.post('/todos', (req, res) =>{
 app.listen(3000, () => {
   console.log('Server listening on port 3000');
 });
+
+// Export to test file
+module.exports = {app}
