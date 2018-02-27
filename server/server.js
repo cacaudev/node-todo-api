@@ -10,6 +10,8 @@ const {User}     = require('./models/user');
 app.use(bodyParser.json());
 
 // Routes
+
+// Create Todo Document
 app.post('/todos', (req, res) => {
   let todo = new Todo({
     text: req.body.text
@@ -19,6 +21,15 @@ app.post('/todos', (req, res) => {
     res.send(doc); // 200 - OK
   }).catch((error) => {
     res.sendStatus(400); // 400 - Bad request
+  });
+});
+
+// Fetch all Todo documents in the collection
+app.get('/todos', (req, res) => {
+  Todo.find().then((todos) => {
+    res.send({todos});
+  }).catch((err) => {
+    res.sendStatus(400);
   });
 });
 
