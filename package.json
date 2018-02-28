@@ -9,6 +9,9 @@
     "test": "mocha server/**/*.test.js",
     "test-watch": "nodemon --exec \"npm test\" "
   },
+  "engines": {
+    "node": "9.5.0"
+  },
   "author": "cacaudev",
   "license": "ISC",
   "dependencies": {
