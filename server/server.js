@@ -1,3 +1,4 @@
+const _          = require('lodash');
 const express    = require('express');
 const bodyParser = require('body-parser');
 const app        = express();
@@ -67,6 +68,33 @@ app.delete('/todos/:id', (req, res) => {
   }).catch((err) => {
     return res.sendStatus(400);
   });
+});
+
+app.patch('/todos/:id', (req, res) =>{
+  let id = req.params.id;
+  // Choose the propertys that the user can really change
+  let body = _.pick(req.body, ['text', 'completed']);
+
+  if (!ObjectID.isValid(id))   
+    return res.sendStatus(404);
+  
+  
+  // if the completed value is boolean type and is true
+  if (_.isBoolean(body.completed) && body.completed) {
+    // update the time when the todo was completed 
+    body.completedAt = new Date().getTime();
+  }
+  else {
+    // else go back to default values
+    body.completed = false;
+    body.completedAt = null;
+  }
+
+  Todo.findByIdAndUpdate(id, {$set: body}, {new: true}).then((todo) => {
+    if (!todo)       
+      return res.sendStatus(404);    
+    res.send({todo});
+  }).catch((err) => res.sendStatus(400));
 });
 
 app.listen(port, () => {
