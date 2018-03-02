@@ -80,7 +80,6 @@ describe('GET /todos', () => {
 });
 
 describe('GET /todos/:id', () => {
-
   it('Should return todo doc', (done) => {
     let hexId = todos[0]._id.toHexString();
     request(app)
@@ -106,11 +105,9 @@ describe('GET /todos/:id', () => {
       .expect(404)
       .end(done);
   });
-
 });
 
 describe('DELETE /todos/:id', () => {
-
   it('Should delete a todo doc', (done) => {
     let hexId = todos[1]._id.toHexString();
 
@@ -149,8 +146,7 @@ describe('DELETE /todos/:id', () => {
   });
 });
 
-describe('PATCH /todos/:id', () => {
-  
+describe('PATCH /todos/:id', () => {  
   it('Should update the todo', (done) => {
     let hexId = todos[0]._id.toHexString();
     let newText = "Updated the text";

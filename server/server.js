@@ -25,62 +25,43 @@ app.post('/todos', (req, res) => {
 
   todo.save().then((doc) => {
     res.send(doc); // 200 - OK
-  }).catch((error) => {
-    res.sendStatus(400); // 400 - Bad request
-  });
+  }).catch((error) => res.sendStatus(400)); // 400 - Bad request
 });
 
 // Fetch all Todo documents in the collection
 app.get('/todos', (req, res) => {
   Todo.find().then((todos) => {
     res.send({todos});
-  }).catch((err) => {
-    res.sendStatus(400);
-  });
+  }).catch((err) => res.sendStatus(400));
 });
 
 // Get a Todo by ID
 app.get('/todos/:id', (req, res) => {
   let id = req.params.id;
-
   if (!ObjectID.isValid(id))
     return res.sendStatus(404);
 
   Todo.findById(id).then((todo) => {
-    if (!todo) 
-      return res.sendStatus(404);
-
-    return res.send({todo});
-  }).catch((err) => {
-    return res.sendStatus(400);
-  });
+    if (!todo) return res.sendStatus(404);
+    res.send({todo});
+  }).catch((err) => res.sendStatus(400));
 });
 
 app.delete('/todos/:id', (req, res) => {
   let idToDelete = req.params.id;
-
-  if (!ObjectID.isValid(idToDelete))
-    return res.sendStatus(404);
+  if (!ObjectID.isValid(idToDelete)) return res.sendStatus(404);
 
   Todo.findByIdAndRemove(idToDelete).then((todo) => {
-    if (!todo)
-      return res.sendStatus(404);
-
+    if (!todo) return res.sendStatus(404);
     res.send({todo});
-  }).catch((err) => {
-    return res.sendStatus(400);
-  });
+  }).catch((err) => res.sendStatus(400));
 });
 
 app.patch('/todos/:id', (req, res) =>{
   let id = req.params.id;
   // Choose the propertys that the user can really change
   let body = _.pick(req.body, ['text', 'completed']);
-
-  if (!ObjectID.isValid(id))   
-    return res.sendStatus(404);
-  
-  
+  if (!ObjectID.isValid(id)) return res.sendStatus(404);  
   // if the completed value is boolean type and is true
   if (_.isBoolean(body.completed) && body.completed) {
     // update the time when the todo was completed 
@@ -93,8 +74,7 @@ app.patch('/todos/:id', (req, res) =>{
   }
 
   Todo.findByIdAndUpdate(id, {$set: body}, {new: true}).then((todo) => {
-    if (!todo)       
-      return res.sendStatus(404);    
+    if (!todo) return res.sendStatus(404);    
     res.send({todo});
   }).catch((err) => res.sendStatus(400));
 });
