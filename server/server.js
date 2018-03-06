@@ -25,14 +25,14 @@ app.post('/todos', (req, res) => {
 
   todo.save().then((doc) => {
     res.send(doc); // 200 - OK
-  }).catch((error) => res.sendStatus(400)); // 400 - Bad request
+  }).catch((error) => res.status(400).send(error)); // 400 - Bad request
 });
 
 // Fetch all Todo documents in the collection
 app.get('/todos', (req, res) => {
   Todo.find().then((todos) => {
     res.send({todos});
-  }).catch((err) => res.sendStatus(400));
+  }).catch((error) => res.status(400).send(error));
 });
 
 // Get a Todo by ID
@@ -44,7 +44,7 @@ app.get('/todos/:id', (req, res) => {
   Todo.findById(id).then((todo) => {
     if (!todo) return res.sendStatus(404);
     res.send({todo});
-  }).catch((err) => res.sendStatus(400));
+  }).catch((error) => res.status(400).send(error));
 });
 
 app.delete('/todos/:id', (req, res) => {
@@ -54,7 +54,7 @@ app.delete('/todos/:id', (req, res) => {
   Todo.findByIdAndRemove(idToDelete).then((todo) => {
     if (!todo) return res.sendStatus(404);
     res.send({todo});
-  }).catch((err) => res.sendStatus(400));
+  }).catch((error) => res.status(400).send(error));
 });
 
 app.patch('/todos/:id', (req, res) =>{
@@ -76,7 +76,19 @@ app.patch('/todos/:id', (req, res) =>{
   Todo.findByIdAndUpdate(id, {$set: body}, {new: true}).then((todo) => {
     if (!todo) return res.sendStatus(404);    
     res.send({todo});
-  }).catch((err) => res.sendStatus(400));
+  }).catch((error) => res.status(400).send(error));
+});
+
+// Create User Document
+app.post('/users', (req, res) => {
+  let body = _.pick(req.body, ['email', 'password']);
+  let user = new User(body);
+
+  user.save().then(() => {
+    return user.generateAuthToken();
+  }).then((token) => {
+    res.header('x-auth', token).send(user);
+  }).catch((error) => res.status(400).send(error)); // 400 - Bad request
 });
 
 app.listen(port, () => {
