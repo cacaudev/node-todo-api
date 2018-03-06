@@ -2,6 +2,7 @@ const mongoose  = require('mongoose');
 const validator = require('validator');
 const jwt       = require('jsonwebtoken');
 const {_}       = require('lodash');
+const bcrypt    = require('bcryptjs');
 
 let UserSchema = new mongoose.Schema({
   email: {
@@ -73,6 +74,24 @@ UserSchema.statics.findByToken = function (token) {
     'tokens.access': 'auth'
   });
 };
+
+// Mongoose middleware
+// this is executed before an event - in this case save schema
+// we have to hash the password given before saving in the database
+UserSchema.pre('save', function (next) {
+  let user = this;
+  if (user.isModified('password')) {
+    // 10 rounds
+    bcrypt.genSalt(10 ,(err, salt) => {
+      bcrypt.hash(user.password, salt, (err, hash) => {
+        user.password = hash;
+        next();
+      });
+    });    
+  } else {
+    next();
+  }
+});
 
 let User = mongoose.model('User', UserSchema);
 module.exports = {User};
