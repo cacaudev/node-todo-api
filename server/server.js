@@ -6,9 +6,10 @@ const bodyParser = require('body-parser');
 const app        = express();
 const {ObjectID} = require('mongodb');
 
-const {mongoose} = require('./db/mongoose');
-const {Todo}     = require('./models/todo');
-const {User}     = require('./models/user');
+const {mongoose}     = require('./db/mongoose');
+const {Todo}         = require('./models/todo');
+const {User}         = require('./models/user');
+const {authenticate} = require('./../middleware/authenticate');
 
 const port = process.env.PORT;
 
@@ -89,6 +90,10 @@ app.post('/users', (req, res) => {
   }).then((token) => {
     res.header('x-auth', token).send(user);
   }).catch((error) => res.status(400).send(error)); // 400 - Bad request
+});
+
+app.get('/users/me', authenticate, (req, res) => {
+  res.send(req.user);
 });
 
 app.listen(port, () => {
