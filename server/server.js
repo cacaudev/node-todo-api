@@ -1,5 +1,5 @@
 console.log('Starting server');
-console.log('Hello testing git');
+
 require('./config/config');
 
 const _          = require('lodash');
