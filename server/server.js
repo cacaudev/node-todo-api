@@ -1,3 +1,4 @@
+console.log('Starting server.js');
 require('./config/config');
 
 const _          = require('lodash');
