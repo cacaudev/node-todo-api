@@ -2,13 +2,9 @@ console.log('Starting server');
 
 require('./config/config');
 
-const _          = require('lodash');
 const express    = require('express');
 const bodyParser = require('body-parser');
 const app        = express();
-const {ObjectID} = require('mongodb');
-const bcrypt     = require('bcryptjs');
-const router     = express.Router();
 
 const {mongoose}     = require('./db/mongoose');
 const {Todo}         = require('./models/todo');
