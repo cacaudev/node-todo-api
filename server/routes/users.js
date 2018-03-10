@@ -8,7 +8,6 @@ const {User}         = require('./../models/user');
 const {mongoose}     = require('./../db/mongoose');
 const {authenticate} = require('./../middleware/authenticate');
 
-
 // Create User Document
 router.post('/', (req, res) => {
   let body = _.pick(req.body, ['email', 'password']);
@@ -35,6 +34,14 @@ router.post('/login', (req, res) => {
    }).catch((err) => {
     res.status(400).send(err);
   });  
+});
+
+router.delete('/me/token', authenticate, (req, res) => {
+  req.user.removeToken(req.token).then(() => {
+    res.sendStatus(200);
+  }, () => {
+    res.sendStatus(400);
+  });
 });
 
 module.exports = router;

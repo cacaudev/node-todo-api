@@ -6,10 +6,6 @@ const express    = require('express');
 const bodyParser = require('body-parser');
 const app        = express();
 
-const {mongoose}     = require('./db/mongoose');
-const {Todo}         = require('./models/todo');
-const {User}         = require('./models/user');
-
 // Routes
 const todos = require('./routes/todos');
 const users = require('./routes/users');
