@@ -4,13 +4,15 @@ const {ObjectID} = require('mongodb');
 const _          = require('lodash');
 const bodyParser = require('body-parser');
 
-const {Todo}     = require('./../models/todo');
-const {mongoose} = require('./../db/mongoose');
+const {Todo}         = require('./../models/todo');
+const {mongoose}     = require('./../db/mongoose');
+const {authenticate} = require('./../middleware/authenticate');
 
 // Create Todo Document
-router.post('/', (req, res) => {
+router.post('/', authenticate, (req, res) => {
   let todo = new Todo({
-    text: req.body.text
+    text: req.body.text,
+    _creator: req.user._id
   });
 
   todo.save().then((doc) => {
@@ -19,39 +21,47 @@ router.post('/', (req, res) => {
 });
 
 // Fetch all Todo documents in the collection
-router.get('/', (req, res) => {
-  Todo.find().then((todos) => {
+router.get('/', authenticate, (req, res) => {
+  Todo.find({_creator: req.user._id}).then((todos) => {
     res.send({todos});
   }).catch((error) => res.status(400).send(error));
 });
 
 // Get a Todo by ID
-router.get('/:id', (req, res) => {
+router.get('/:id', authenticate, (req, res) => {
   let id = req.params.id;
   if (!ObjectID.isValid(id))
     return res.sendStatus(404);
 
-  Todo.findById(id).then((todo) => {
+  Todo.findOne({
+    _id: id,
+    _creator: req.user._id
+  }).then((todo) => {
     if (!todo) return res.sendStatus(404);
     res.send({todo});
   }).catch((error) => res.status(400).send(error));
 });
 
-router.delete('/:id', (req, res) => {
+router.delete('/:id', authenticate, (req, res) => {
   let idToDelete = req.params.id;
   if (!ObjectID.isValid(idToDelete)) return res.sendStatus(404);
 
-  Todo.findByIdAndRemove(idToDelete).then((todo) => {
+  Todo.findOneAndRemove({
+    _id: idToDelete,
+    _creator: req.user._id
+    }).then((todo) => {
     if (!todo) return res.sendStatus(404);
     res.send({todo});
   }).catch((error) => res.status(400).send(error));
 });
 
-router.patch('/:id', (req, res) =>{
+router.patch('/:id', authenticate, (req, res) =>{
   let id = req.params.id;
   // Choose the propertys that the user can really change
   let body = _.pick(req.body, ['text', 'completed']);
+  
   if (!ObjectID.isValid(id)) return res.sendStatus(404);  
+  
   // if the completed value is boolean type and is true
   if (_.isBoolean(body.completed) && body.completed) {
     // update the time when the todo was completed 
@@ -63,7 +73,11 @@ router.patch('/:id', (req, res) =>{
     body.completedAt = null;
   }
 
-  Todo.findByIdAndUpdate(id, {$set: body}, {new: true}).then((todo) => {
+  Todo.findOneAndUpdate(
+    {_id: id, _creator: req.user._id},
+    {$set: body}, 
+    {new: true}  
+  ).then((todo) => {
     if (!todo) return res.sendStatus(404);    
     res.send({todo});
   }).catch((error) => res.status(400).send(error));
